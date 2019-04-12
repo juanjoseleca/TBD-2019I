@@ -48,11 +48,12 @@ class SistemaDeRecomendacion:
         for x in documento:
             x=x.rstrip('\n')
             matriz.append(x.split(","))
-        self.nombres=matriz[0]
-        peliculas=[]
+        self.nombres=matriz[0][1:]
+        for ix in range(len(self.nombres)): 
+            self.nombres[ix]=self.nombres[ix].replace('"','')
         matriz=matriz[1:]
         for i in range (len(matriz)):
-            peliculas.append(matriz[i][0])
+            self.peliculas.append(matriz[i][0].replace('"',''))
             matriz[i]=matriz[i][1:]
             for ix in range(len(matriz[i])):
                 if(matriz[i][ix]==''):
@@ -63,11 +64,28 @@ class SistemaDeRecomendacion:
     def imprimir(self):
         print("Distancia entre dos: ",Pearson(self.matriz_t[0],self.matriz_t[1]))
         print("Distancia entre dos: ",Coseno(self.matriz_t[0],self.matriz_t[1]))
-    def recommendar(self,nombre,pelicula):
-        print("here")
+    def recomendar(self,nombre,pelicula,k):
+        i_nombre=self.nombres.index(nombre)
+        i_pelicula=self.peliculas.index(pelicula)
+        distancias=[0]*len(self.matriz_t)
+        for i in range(len(self.matriz_t)):
+            if(self.matriz_t[i][i_pelicula]!=0 and i!=i_nombre):
+                distancias[i]=Pearson(self.matriz_t[i],self.matriz_t[i_nombre])
+            else:
+                distancias[i]=0
+        pos_sorted=sorted(range(len(distancias)), key=lambda k: distancias[k],reverse=True)
+        pos_sorted=pos_sorted[:k]
+        ponderado=0
+        print("Vecinos mas cercanos de",nombre,": ")
+        for i in pos_sorted:
+            print(self.nombres[i]," : ",self.matriz_t[i])
+            ponderado+=self.matriz_t[i][i_pelicula]
+        print("El puntaje recomendado para ",nombre," en la pelicula ",pelicula," es: ",ponderado/k)
+        return ponderado/k
+
 ##################
 miSistema=SistemaDeRecomendacion()
-miSistema.imprimir()
+miSistema.recomendar("Patrick C","Village",3)
 """
 for i in range(len(matriz)):
     matriz[i]=matriz[1:]
