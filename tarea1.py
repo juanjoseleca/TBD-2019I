@@ -1,11 +1,4 @@
-import csv
 import math
-import pandas as pd  
-import numpy as np  
-import matplotlib.pyplot as plt  
-
-
-
 def Pearson(x,y):
     if(len(x)!=len(y)):
         print("error de tamaño")
@@ -83,11 +76,5 @@ class SistemaDeRecomendacion:
         print("El puntaje recomendado para ",nombre," en la pelicula ",pelicula," es: ",ponderado/k)
         return ponderado/k
 
-##################
 miSistema=SistemaDeRecomendacion()
 miSistema.recomendar("Patrick C","Village",3)
-"""
-for i in range(len(matriz)):
-    matriz[i]=matriz[1:]
-    print (matriz[i])
-   """     
