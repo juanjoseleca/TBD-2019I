@@ -57,24 +57,48 @@ class SistemaDeRecomendacion:
     def imprimir(self):
         print("Distancia entre dos: ",Pearson(self.matriz_t[0],self.matriz_t[1]))
         print("Distancia entre dos: ",Coseno(self.matriz_t[0],self.matriz_t[1]))
-    def recomendar(self,nombre,pelicula,k):
-        i_nombre=self.nombres.index(nombre)
-        i_pelicula=self.peliculas.index(pelicula)
+    def get_k(self,k,i_nombre,i_pelicula=None):
         distancias=[0]*len(self.matriz_t)
         for i in range(len(self.matriz_t)):
-            if(self.matriz_t[i][i_pelicula]!=0 and i!=i_nombre):
-                distancias[i]=Pearson(self.matriz_t[i],self.matriz_t[i_nombre])
+            if i_pelicula is None:
+                if(i!=i_nombre):
+                    distancias[i]=Coseno(self.matriz_t[i],self.matriz_t[i_nombre])
+                else:
+                    distancias[i]=9999
             else:
-                distancias[i]=0
-        pos_sorted=sorted(range(len(distancias)), key=lambda k: distancias[k],reverse=True)
-        pos_sorted=pos_sorted[:k]
+                if(self.matriz_t[i][i_pelicula]!=0 and i!=i_nombre):
+                    distancias[i]=Coseno(self.matriz_t[i],self.matriz_t[i_nombre])
+                else:
+                    distancias[i]=9999
+                
+        pos_sorted=sorted(range(len(distancias)), key=lambda k: distancias[k])
+        return pos_sorted[:k]
+
+
+    def predecir(self,nombre,pelicula,k):
+        i_nombre=self.nombres.index(nombre)
+        i_pelicula=self.peliculas.index(pelicula)
+        pos_sorted=self.get_k(k,i_nombre,i_pelicula)
         ponderado=0
-        print("Vecinos mas cercanos de",nombre,": ")
+        print("Vecinos mas cercanos de",nombre," que hayan visto ",pelicula,": ")
         for i in pos_sorted:
             print(self.nombres[i]," : ",self.matriz_t[i])
             ponderado+=self.matriz_t[i][i_pelicula]
         print("El puntaje recomendado para ",nombre," en la pelicula ",pelicula," es: ",ponderado/k)
         return ponderado/k
-
+    def recomendar(self,k,nombre,t):
+        i_nombre=self.nombres.index(nombre)
+        puntaje=[]
+        pos=[]
+        for x in range(len(self.peliculas)):
+            if(self.matriz_t[i_nombre][x]==0):
+                puntaje.append(self.predecir(nombre,self.peliculas[x],k))
+                pos.append(x)
+        pos_sorted=sorted(range(len(puntaje)), key=lambda k: puntaje[k],reverse=True)
+        for i in pos_sorted[:t]:
+            print ("Pelicula Recomendada: ",self.peliculas[pos[i]])
+k=3  ##Vecinos cercanos a evaluar
+t=3  ##Numero de peliculas a recomendar
 miSistema=SistemaDeRecomendacion()
-miSistema.recomendar("Patrick C","Village",3)
+miSistema.predecir("Patrick C","Village",k)
+miSistema.recomendar(k,"Patrick C",t)
